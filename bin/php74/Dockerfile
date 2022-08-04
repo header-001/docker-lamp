@@ -62,7 +62,13 @@ RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install mbstring && \
     docker-php-ext-install gettext && \
     docker-php-ext-install calendar && \
-    docker-php-ext-install exif
+    docker-php-ext-install exif && \
+    docker-php-ext-install soap && \
+    docker-php-ext-install sockets && \
+    docker-php-ext-install xsl && \
+    docker-php-ext-install xml && \
+    docker-php-ext-install opcache && \
+    docker-php-ext-install imap
 
 
 # Install Freetype 
@@ -73,6 +79,22 @@ libpng-dev && \
     rm -rf /var/lib/apt/lists/* && \
     docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd
+
+# Increase memory_limit
+RUN echo 'memory_limit = -1' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Install Git
+RUN apt install -y git
+
+# Install nodejs nvm, and yarn
+RUN apt install -y nodejs npm gnupg \
+	&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+	&& echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list \
+	&& apt update -y \
+	&& apt install -y yarn
 
 # Enable apache modules
 RUN a2enmod rewrite headers
